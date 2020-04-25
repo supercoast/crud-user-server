@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	_ "github.com/crud-user-server/service"
+	_ "github.com/supercoast/crud-user-server/service"
 )
 func main() {
 
