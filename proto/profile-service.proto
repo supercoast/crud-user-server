@@ -1,11 +1,11 @@
 syntax = "proto3";
-package profile;
+package pb;
 
 service ProfileService {
   rpc createProfile(stream Profile) returns (ProfileId);
-  rpc readProfile(ProfileId) returns (stream Profile);
-  rpc updateProfile(stream Profile) returns (ProfileId);
-  rpc deleteProfile(ProfileId) returns (Status);
+  //rpc readProfile(ProfileId) returns (stream Profile);
+  //rpc updateProfile(stream Profile) returns (ProfileId);
+  //rpc deleteProfile(ProfileId) returns (Status);
 }
 
 message Date {

@@ -2,36 +2,35 @@ package service
 
 import (
 	"bytes"
-	"sync"
+	"fmt"
 	"os"
 
-	"github.com/gofrs/uuid"
+	"github.com/google/uuid"
 )
 
 type ImageStore interface {
-	Save(profileId string, imageData bytes.Buffer) (string, error)
+	Save(profileId string, imageType string, imageData bytes.Buffer) (string, error)
 }
 
 type ImageInfo struct {
 	ProfileId string
-	Type string
-	Path string
+	Type      string
+	Path      string
 }
 
-type DiskImageStore interface {
-	mutex sync.RWMutex
+type DiskImageStore struct {
 	imageFolder string
-	images map[string]*ImageInfo
+	images      map[string]*ImageInfo
 }
 
-func NewDiskImageStore(imageFolder string, image) *DiskImageStore {
-	return DiskImageStore{
+func NewDiskImageStore(imageFolder string) *DiskImageStore {
+	return &DiskImageStore{
 		imageFolder: imageFolder,
-		images: make(map[string]*ImageInfo),
+		images:      make(map[string]*ImageInfo),
 	}
 }
 
-func (store *DiskImageStrore) Save(profileId string, imageType string, imageData bytes.Buffer) (string, error) {
+func (store *DiskImageStore) Save(profileId string, imageType string, imageData bytes.Buffer) (string, error) {
 	imageId, err := uuid.NewRandom()
 	if err != nil {
 		return "", fmt.Errorf("Not able to generate image id: %w", err)
@@ -44,19 +43,19 @@ func (store *DiskImageStrore) Save(profileId string, imageType string, imageData
 		return "", fmt.Errorf("Not able to generate image file: %w", err)
 	}
 
-	_, err := imageData.WriteTo(file)
+	_, err = imageData.WriteTo(file)
 	if err != nil {
 		return "", fmt.Errorf("Not able to write image to file %w", err)
 	}
 
-	store.mutex.Lock()
-	defer store.mutex.Unlock()
+	// store.mutex.Lock()
+	// defer store.mutex.Unlock()
 
 	store.images[imageId.String()] = &ImageInfo{
 		ProfileId: profileId,
-		Type: imageType,
-		Path: imagePath,
+		Type:      imageType,
+		Path:      imagePath,
 	}
 
-	return imageID.String(), nil 
+	return imageId.String(), nil
 }
