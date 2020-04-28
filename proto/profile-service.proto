@@ -24,6 +24,7 @@ message ProfileData {
   string lastName = 3;
   Date birthday = 4;
   string email = 5;
+  string imageType = 6;
 }
 
 message Profile {

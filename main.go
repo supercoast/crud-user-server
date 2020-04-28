@@ -11,7 +11,7 @@ import (
 )
 
 const (
-	address  = "127.0.0.1"
+	address  = "0.0.0.0"
 	port     = "8080"
 	protocol = "tcp"
 )

@@ -35,6 +35,8 @@ func (s *ProfileServer) CreateProfile(stream pb.ProfileService_CreateProfileServ
 	profile := req.GetProfileData()
 	log.Printf("Received the new profile of %s %s", profile.GetGivenName(), profile.GetLastName())
 
+	imageType := profile.GetImageType()
+
 	profileId, err := uuid.NewRandom()
 	if err != nil {
 		return helper.LogError(status.Errorf(codes.Internal, "not able to create profile id"))
@@ -70,7 +72,7 @@ func (s *ProfileServer) CreateProfile(stream pb.ProfileService_CreateProfileServ
 		}
 	}
 
-	imageId, err := s.imageStore.Save(profileId.String(), "png", imageData)
+	imageId, err := s.imageStore.Save(profileId.String(), imageType, imageData)
 	if err != nil {
 		return helper.LogError(status.Errorf(codes.Internal, "not able to save image to store: %v", err))
 	}
