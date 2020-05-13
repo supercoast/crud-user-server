@@ -10,7 +10,7 @@ import (
 	"google.golang.org/grpc/status"
 
 	"github.com/supercoast/crud-user-server/helper"
-	pb "github.com/supercoast/crud-user-server/pb"
+	"github.com/supercoast/crud-user-server/pb"
 )
 
 const (
