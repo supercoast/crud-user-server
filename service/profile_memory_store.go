@@ -16,13 +16,13 @@ type ProfileMemoryStore struct {
 
 func NewProfileMemoryStore() *ProfileMemoryStore {
 	return &ProfileMemoryStore{
-		profiles: make(map[string]*pb.Profile)
+		profiles: make(map[string]*pb.Profile),
 	}
 }
 
 func (pm *ProfileMemoryStore) SaveProfile(profile *pb.Profile) (string, error) {
 
-	profileID := profile.GetProfileData().GetId()
+	profileID := profile.GetId()
 
 	if _, ok := pm.profiles[profileID]; !ok {
 		return "", errors.New("Id already present " + profileID)

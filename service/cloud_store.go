@@ -43,7 +43,7 @@ func (c *CloudStore) CreateBucket() (string, error) {
 	return c.googleBucketName, nil
 }
 
-func (c *CloudStore) Save(profileId string, imageType string, imageData bytes.Buffer) (string, error) {
+func (c *CloudStore) Save(imageType string, imageData bytes.Buffer) (string, error) {
 	imageId, err := uuid.NewRandom()
 
 	ctx := context.Background()

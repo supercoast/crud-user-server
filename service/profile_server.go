@@ -2,10 +2,10 @@ package service
 
 import (
 	"bytes"
+	"context"
 	"io"
 	"log"
 
-	"github.com/google/uuid"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
@@ -18,29 +18,31 @@ const (
 )
 
 type ProfileServer struct {
-	imageStore ImageStore
+	imageStore   ImageStore
+	profileStore ProfileStore
 }
 
-func NewProfileServer(imageStore ImageStore) *ProfileServer {
-	return &ProfileServer{imageStore}
+func NewProfileServer(imageStore ImageStore, profileStore ProfileStore) *ProfileServer {
+	return &ProfileServer{imageStore, profileStore}
 }
 
-func (s *ProfileServer) CreateProfile(stream pb.ProfileService_CreateProfileServer) error {
+func (s *ProfileServer) CreateProfile(ctx context.Context, in *pb.Profile) (*pb.ProfileId, error) {
+	profileID, err := s.profileStore.SaveProfile(in)
+	if err != nil {
+		return nil, err
+	}
+
+	return &pb.ProfileId{Id: profileID}, nil
+}
+
+func (s *ProfileServer) CreateImage(stream pb.ProfileService_CreateImageServer) error {
 
 	req, err := stream.Recv()
 	if err != nil {
 		return helper.LogError(status.Errorf(codes.Unknown, "cannot receive image info"))
 	}
 
-	profile := req.GetProfileData()
-	log.Printf("Received the new profile of %s %s", profile.GetGivenName(), profile.GetLastName())
-
-	imageType := profile.GetImageType()
-
-	profileId, err := uuid.NewRandom()
-	if err != nil {
-		return helper.LogError(status.Errorf(codes.Internal, "not able to create profile id"))
-	}
+	imageType := req.GetImageMetaData().GetType()
 
 	imageData := bytes.Buffer{}
 	imageSize := 0
@@ -72,13 +74,13 @@ func (s *ProfileServer) CreateProfile(stream pb.ProfileService_CreateProfileServ
 		}
 	}
 
-	imageId, err := s.imageStore.Save(profileId.String(), imageType, imageData)
+	imageId, err := s.imageStore.Save(imageType, imageData)
 	if err != nil {
 		return helper.LogError(status.Errorf(codes.Internal, "not able to save image to store: %v", err))
 	}
 
-	res := &pb.ProfileId{
-		Id: profileId.String(),
+	res := &pb.ImageId{
+		Id: imageId,
 	}
 
 	err = stream.SendAndClose(res)

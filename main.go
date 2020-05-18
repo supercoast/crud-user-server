@@ -15,7 +15,7 @@ import (
 
 func main() {
 
-	cm := helper.NewConfigManager("srv-config", "/opt")
+	cm := helper.NewConfigManager("config/srv-config", "/opt")
 	cm.Init()
 
 	gcpProjectID := cm.GetEnvValue("gcp_project_id")
@@ -34,12 +34,16 @@ func main() {
 	if err != nil {
 		log.Fatalf("Failed to listen: %v", err)
 	}
-	//imageStore := service.NewDiskImageStore("/tmp")
+
 	imageStore := service.NewCloudStore(gcpProjectID, gcpBucketName)
 	if err != nil {
 		log.Fatal("Could not create storage bucket")
 	}
-	profileServer := service.NewProfileServer(imageStore)
+	profileStore, err := service.NewProfileGCPStore(gcpProjectID)
+	if err != nil {
+		log.Fatal("Couldn't create profileStore on GCP")
+	}
+	profileServer := service.NewProfileServer(imageStore, profileStore)
 
 	s := grpc.NewServer()
 	pb.RegisterProfileServiceServer(s, profileServer)
